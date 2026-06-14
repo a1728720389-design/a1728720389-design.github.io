@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>请假记录</title>
+  <style>
+    *, *::before, *::after {
+      margin: 0; padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: #f2f2f2;
+      font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC',
+                   'Helvetica Neue', 'Microsoft YaHei', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ── 口令登录层 ── */
+    .lock {
+      position: fixed; inset: 0;
+      background: linear-gradient(135deg, #C371FF 0%, #3AC8C8 100%);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999;
+    }
+    .lock.hide { display: none; }
+    .lock-box {
+      background: #fff;
+      width: 84%; max-width: 360px;
+      border-radius: 14px;
+      padding: 32px 26px 26px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.18);
+      text-align: center;
+    }
+    .lock-emoji { font-size: 44px; margin-bottom: 8px; }
+    .lock-title {
+      font-size: 19px; font-weight: 600;
+      color: #313131; margin-bottom: 4px;
+    }
+    .lock-sub {
+      font-size: 13px; color: #999; margin-bottom: 22px;
+    }
+    .lock-input {
+      width: 100%; height: 46px;
+      border: 1.5px solid #e5e5e5;
+      border-radius: 8px;
+      padding: 0 14px;
+      font-size: 16px; color: #313131;
+      outline: none;
+      transition: border-color 0.2s;
+      margin-bottom: 14px;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+    .lock-input:focus { border-color: #C371FF; }
+    .lock-err {
+      font-size: 13px; color: #ff4d4f;
+      height: 18px; margin-bottom: 6px;
+      opacity: 0; transition: opacity 0.2s;
+    }
+    .lock-err.show { opacity: 1; }
+    .lock-btn {
+      width: 100%; height: 46px;
+      border: none; border-radius: 8px;
+      background: linear-gradient(to right, #C371FF, #3A9FE8);
+      color: #fff; font-size: 16px; font-weight: 500;
+      letter-spacing: 2px; cursor: pointer;
+    }
+    .lock-btn:active { opacity: 0.85; }
+    .lock-tip {
+      font-size: 12px; color: #bbb; margin-top: 14px;
+    }
+
+    /* ── 主页面 ── */
+    .app { padding-bottom: 54px; }
+    .app.hide { display: none; }
+
+    /* 卡片 */
+    .card {
+      background: #fff;
+      margin-bottom: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+    .card-wrap { padding: 4px 15px; }
+
+    /* 普通行 */
+    .row {
+      display: flex;
+      align-items: flex-start;
+      padding: 12px 0;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .row:last-child { border-bottom: none; }
+
+    .row-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .row-top-left {
+      display: flex;
+      align-items: center;
+    }
+
+    /* 标签 #313131 */
+    .lbl {
+      width: 42px; min-width: 42px;
+      font-size: 16.5px;
+      color: #313131;
+      line-height: 1.5;
+      word-break: break-all;
+      font-weight: 400;
+    }
+
+    /* 值 #777777 */
+    .val {
+      flex: 1;
+      font-size: 16.5px;
+      color: #777777;
+      line-height: 1.5;
+      padding-left: 10px;
+    }
+
+    /* 查看详情 */
+    .link-detail {
+      font-size: 15px;
+      color: #3CCCCC;
+      white-space: nowrap;
+    }
+
+    /* ── 角标 —— 对角三角（用户调试后写死值） ── */
+    .stamp {
+      position: absolute;
+      bottom: 0; right: 0;
+      width:  77px;
+      height: 79px;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 5;
+    }
+    .stamp-band {
+      position: absolute;
+      bottom:  7px;
+      right: -40px;
+      width: 128px;
+      padding: 6px 0;
+      text-align: center;
+      font-size:  13.5px;
+      font-weight: 500;
+      color: #fff;
+      letter-spacing: 1.5px;
+      transform: rotate(-45deg);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    /* 黄色 —— 待休假 */
+    .stamp-pending .stamp-band { background: #FFC93C; }
+    /* 紫色 —— 已销假 */
+    .stamp-done   .stamp-band { background: #C371FF; }
+
+    /* ── 可编辑样式 ── */
+    [contenteditable="true"] {
+      outline: none;
+      cursor: text;
+      border-radius: 2px;
+      transition: background 0.15s, box-shadow 0.15s;
+    }
+    [contenteditable="true"]:focus {
+      background: rgba(195, 113, 255, 0.08);
+      box-shadow: 0 1px 0 0 #C371FF;
+    }
+    .btn-text[contenteditable="true"]:focus {
+      background: rgba(255,255,255,0.18);
+      box-shadow: 0 1px 0 0 rgba(255,255,255,0.7);
+    }
+
+    /* ── 底部按钮 ── */
+    .foot {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      height: 54px;
+      background: linear-gradient(to right, #3CD4D4, #3A9FE8);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .btn-text {
+      color: #fff; font-size: 17px;
+      letter-spacing: 3px; padding: 4px 8px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ 口令登录 ═══ -->
+<div class="lock" id="lock">
+  <div class="lock-box">
+    <div class="lock-emoji">🔒</div>
+    <div class="lock-title">请输入访问口令</div>
+    <div class="lock-sub">验证通过后可进入请假记录页面</div>
+    <input type="password" class="lock-input" id="pwd"
+           placeholder="请输入口令" autocomplete="off">
+    <div class="lock-err" id="err">口令错误，请重新输入</div>
+    <button class="lock-btn" id="goBtn">进入系统</button>
+    <div class="lock-tip">🔐 页面受口令保护</div>
+  </div>
+</div>
+
+<!-- ═══ 主页面（默认隐藏） ═══ -->
+<div class="app hide" id="app">
+
+  <!-- ══ 请假记录 1（待休假 - 黄色） ══ -->
+  <div class="card">
+    <div class="card-wrap">
+      <div class="row-top">
+        <div class="row-top-left">
+          <span class="lbl" contenteditable="true">学号</span>
+          <span class="val" contenteditable="true">2024903042</span>
+        </div>
+        <span class="link-detail" contenteditable="true">查看详情 &gt;</span>
+      </div>
+      <div class="row">
+        <span class="lbl" contenteditable="true">姓名</span>
+        <span class="val" contenteditable="true">王明涵</span>
+      </div>
+      <div class="row">
+        <span class="lbl" contenteditable="true">请假时间</span>
+        <span class="val" contenteditable="true">2025-10-25 10:41至2025-10-25 14:59</span>
+      </div>
+      <div class="row">
+        <span class="lbl" contenteditable="true">请假时长</span>
+        <span class="val" contenteditable="true">0天4小时</span>
+      </div>
+      <div class="row">
+        <span class="lbl" contenteditable="true">是否续假</span>
+        <span class="val" contenteditable="true">否</span>
+      </div>
+      <div class="row">
+        <span class="lbl" contenteditable="true">请假原因</span>
+        <span class="val" contenteditable="true">校外:</span>
+      </div>
+      <div class="row">
+        <span class="lbl" contenteditable="true">销假状态</span>
+        <span class="val" contenteditable="true">待休假</span>
+      </div>
+    </div>
+    <div class="stamp stamp-pending">
+      <div class="stamp-band" contenteditable="true" style="pointer-events:auto;">待休假</div>
+    </div>
+  </div>
+
+  <!-- ══ 请假记录 2（已销假 - 紫色） ══ -->
+  <div class="card">
+    <div class="card-wrap">
+      <div class="row-top">
+        <div class="row-top-left">
+          <span class="lbl" contenteditable="true">学号</span>
+          <span class="val" contenteditable="true">2024903042</span>
+        </div>
+        <span class="link-detail" contenteditable="true">查看详情 &gt;</span>
+      </div>
+      <div class="row">
+        <span class="lbl" contenteditable="true">姓名</span>
+        <span class="val" contenteditable="true">杜代勇</span>
+      </div>
+      <div class="row">
+        <span class="lbl" contenteditable="true">请假时间</span>
+        <span class="val" contenteditable="true">2025-10-01 09:00至2025-10-04 16:00</span>
+      </div>
+      <div class="row">
+        <span class="lbl" contenteditable="true">请假时长</span>
+        <span class="val" contenteditable="true">4天0小时</span>
+      </div>
+      <div class="row">
+        <span class="lbl" contenteditable="true">是否续假</span>
+        <span class="val" contenteditable="true">否</span>
+      </div>
+      <div class="row">
+        <span class="lbl" contenteditable="true">请假原因</span>
+        <span class="val" contenteditable="true">校外:国庆假期</span>
+      </div>
+      <div class="row">
+        <span class="lbl" contenteditable="true">销假状态</span>
+        <span class="val" contenteditable="true">已销假</span>
+      </div>
+    </div>
+    <div class="stamp stamp-done">
+      <div class="stamp-band" contenteditable="true" style="pointer-events:auto;">已销假</div>
+    </div>
+  </div>
+
+  <!-- 底部按钮 -->
+  <div class="foot">
+    <span class="btn-text" contenteditable="true">提交请假</span>
+  </div>
+
+</div>
+
+<script>
+  const PWD = '原神牛逼';
+  const lock = document.getElementById('lock');
+  const app  = document.getElementById('app');
+  const pwd  = document.getElementById('pwd');
+  const err  = document.getElementById('err');
+  const goBtn = document.getElementById('goBtn');
+
+  function tryEnter() {
+    if (pwd.value === PWD) {
+      lock.classList.add('hide');
+      app.classList.remove('hide');
+    } else {
+      err.classList.add('show');
+      pwd.value = '';
+      pwd.focus();
+    }
+  }
+
+  goBtn.addEventListener('click', tryEnter);
+  pwd.addEventListener('keydown', e => { if (e.key === 'Enter') tryEnter(); });
+  pwd.addEventListener('input',   () => err.classList.remove('show'));
+</script>
+
+</body>
+</html>
