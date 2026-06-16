@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>后台管理 - 密钥设置</title>
+  <style>
+    *, *::before, *::after {
+      margin: 0; padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: #f0f2f5;
+      font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC',
+                   'Helvetica Neue', 'Microsoft YaHei', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── 登录层 ── */
+    .lock {
+      position: fixed; inset: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999;
+    }
+    .lock.hide { display: none; }
+    .lock-box {
+      background: #fff;
+      width: 88%; max-width: 360px;
+      border-radius: 16px;
+      padding: 36px 28px 28px;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.22);
+      text-align: center;
+    }
+    .lock-icon {
+      width: 56px; height: 56px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 14px;
+    }
+    .lock-icon svg { width: 28px; height: 28px; fill: #fff; }
+    .lock-title {
+      font-size: 20px; font-weight: 700;
+      color: #1a1a2e; margin-bottom: 4px;
+    }
+    .lock-sub {
+      font-size: 13px; color: #aaa; margin-bottom: 24px;
+    }
+    .lock-input {
+      width: 100%; height: 48px;
+      border: 1.5px solid #e8e8e8;
+      border-radius: 10px;
+      padding: 0 16px;
+      font-size: 16px; color: #333;
+      outline: none;
+      transition: border-color 0.2s;
+      background: #fafafa;
+    }
+    .lock-input:focus { border-color: #667eea; background: #fff; }
+    .lock-err {
+      font-size: 12px; color: #ff4d4f;
+      margin: 8px 0 0; min-height: 18px;
+      display: none;
+    }
+    .lock-err.show { display: block; }
+    .lock-btn {
+      width: 100%; height: 48px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff; border: none;
+      border-radius: 10px;
+      font-size: 16px; font-weight: 600;
+      cursor: pointer;
+      margin-top: 18px;
+      transition: opacity 0.2s;
+    }
+    .lock-btn:active { opacity: 0.85; }
+
+    /* ── 主界面 ── */
+    #app { display: none; width: 100%; padding: 24px 16px; }
+    #app.show { display: block; }
+
+    .page-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .page-header .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .page-header h1 {
+      font-size: 22px; font-weight: 700;
+      color: #1a1a2e;
+    }
+    .page-header p {
+      font-size: 13px; color: #888; margin-top: 4px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 24px 20px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+      max-width: 480px;
+      margin: 0 auto 16px;
+    }
+
+    .card-title {
+      font-size: 15px; font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .card-title .dot {
+      width: 4px; height: 18px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 2px;
+    }
+
+    .info-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-label {
+      font-size: 13px; color: #888;
+    }
+    .info-value {
+      font-size: 14px; font-weight: 600; color: #333;
+    }
+    .info-value.key-display {
+      font-family: 'Courier New', monospace;
+      background: #f5f3ff;
+      color: #667eea;
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-label {
+      font-size: 13px; font-weight: 600;
+      color: #555; margin-bottom: 8px;
+      display: block;
+    }
+    .form-input {
+      width: 100%; height: 48px;
+      border: 1.5px solid #e8e8e8;
+      border-radius: 10px;
+      padding: 0 16px;
+      font-size: 15px; color: #333;
+      outline: none;
+      transition: border-color 0.2s;
+      background: #fafafa;
+    }
+    .form-input:focus { border-color: #667eea; background: #fff; }
+    .form-hint {
+      font-size: 12px; color: #aaa; margin-top: 6px;
+    }
+
+    .token-row {
+      display: flex; gap: 10px;
+    }
+    .token-row .form-input { flex: 1; }
+
+    .btn-primary {
+      width: 100%; height: 50px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff; border: none;
+      border-radius: 12px;
+      font-size: 16px; font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      margin-top: 4px;
+    }
+    .btn-primary:active { opacity: 0.88; transform: scale(0.98); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-secondary {
+      width: 100%; height: 44px;
+      background: #f5f5f5;
+      color: #555; border: none;
+      border-radius: 10px;
+      font-size: 14px; font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 8px;
+    }
+    .btn-secondary:active { background: #e8e8e8; }
+
+    /* 状态提示 */
+    .status-bar {
+      max-width: 480px; margin: 0 auto 16px;
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      display: none;
+      align-items: center; gap: 10px;
+    }
+    .status-bar.show { display: flex; }
+    .status-bar.success {
+      background: #f0faf4;
+      color: #27ae60;
+      border: 1px solid #b7ebc8;
+    }
+    .status-bar.error {
+      background: #fff2f0;
+      color: #e74c3c;
+      border: 1px solid #ffd6d6;
+    }
+    .status-bar.loading {
+      background: #f0f4ff;
+      color: #667eea;
+      border: 1px solid #c7d2fe;
+    }
+
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid currentColor;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .step-list {
+      list-style: none;
+      counter-reset: step;
+    }
+    .step-list li {
+      counter-increment: step;
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 13px; color: #666;
+      padding: 6px 0;
+    }
+    .step-list li::before {
+      content: counter(step);
+      width: 20px; height: 20px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+      border-radius: 50%;
+      font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .link-btn {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .divider {
+      height: 1px; background: #f0f0f0;
+      max-width: 480px; margin: 4px auto 16px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── 管理员登录层 ── -->
+<div class="lock" id="lock">
+  <div class="lock-box">
+    <div class="lock-icon">
+      <svg viewBox="0 0 24 24"><path d="M12 1C8.676 1 6 3.676 6 7v1H4a1 1 0 0 0-1 1v13a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1h-2V7c0-3.324-2.676-6-6-6zm0 2c2.276 0 4 1.724 4 4v1H8V7c0-2.276 1.724-4 4-4zm0 9a2 2 0 1 1 0 4 2 2 0 0 1 0-4z"/></svg>
+    </div>
+    <div class="lock-title">管理员验证</div>
+    <div class="lock-sub">请输入管理员密码以继续</div>
+    <input type="password" class="lock-input" id="adminPwd"
+           placeholder="管理员密码" autocomplete="off"
+           onkeydown="if(event.key==='Enter')doAdminLogin()">
+    <div class="lock-err" id="adminErr">密码错误，请重新输入</div>
+    <button class="lock-btn" onclick="doAdminLogin()">进入管理后台</button>
+  </div>
+</div>
+
+<!-- ── 主界面 ── -->
+<div id="app">
+
+  <div class="page-header">
+    <div class="badge">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1C8.676 1 6 3.676 6 7v1H4a1 1 0 0 0-1 1v13a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1h-2V7c0-3.324-2.676-6-6-6zm0 2c2.276 0 4 1.724 4 4v1H8V7c0-2.276 1.724-4 4-4zm0 9a2 2 0 1 1 0 4 2 2 0 0 1 0-4z"/></svg>
+      管理后台
+    </div>
+    <h1>假条系统 · 密钥管理</h1>
+    <p>修改后将实时同步到假条系统</p>
+  </div>
+
+  <!-- 状态提示 -->
+  <div class="status-bar" id="statusBar">
+    <div class="spinner" id="statusSpinner" style="display:none"></div>
+    <span id="statusText"></span>
+  </div>
+
+  <!-- 当前信息 -->
+  <div class="card">
+    <div class="card-title"><div class="dot"></div>当前状态</div>
+    <div class="info-row">
+      <span class="info-label">假条系统地址</span>
+      <a class="link-btn" href="https://a1728720389-design.github.io/leave-record.html" target="_blank">打开 →</a>
+    </div>
+    <div class="info-row">
+      <span class="info-label">当前密钥</span>
+      <span class="info-value key-display" id="currentKeyDisplay">读取中...</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">最后更新</span>
+      <span class="info-value" id="lastUpdate">-</span>
+    </div>
+  </div>
+
+  <!-- 修改密钥 -->
+  <div class="card">
+    <div class="card-title"><div class="dot"></div>修改密钥</div>
+
+    <div class="form-group">
+      <label class="form-label">GitHub Token（用于推送修改）</label>
+      <div class="token-row">
+        <input type="password" class="form-input" id="ghToken"
+               placeholder="ghp_xxxxxxxxxxxx"
+               value="">
+      </div>
+      <div class="form-hint">Token 需要 repo 权限，仅在本次会话中使用，不会被存储</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">新密钥</label>
+      <input type="text" class="form-input" id="newKey"
+             placeholder="输入新的访问口令"
+             onkeydown="if(event.key==='Enter')doUpdateKey()">
+      <div class="form-hint">修改后，进入假条系统需使用新密钥</div>
+    </div>
+
+    <button class="btn-primary" id="updateBtn" onclick="doUpdateKey()">确认修改并同步</button>
+    <button class="btn-secondary" onclick="doFetchCurrentKey()">↺ 重新读取当前密钥</button>
+  </div>
+
+  <!-- 使用说明 -->
+  <div class="card">
+    <div class="card-title"><div class="dot"></div>使用说明</div>
+    <ol class="step-list">
+      <li>在上方填入你的 GitHub Token（需要 repo 权限）</li>
+      <li>在"新密钥"框输入想要设置的新口令</li>
+      <li>点击"确认修改并同步"按钮</li>
+      <li>等待约 20 秒，GitHub Pages 自动构建部署</li>
+      <li>之后进入<a class="link-btn" href="https://a1728720389-design.github.io/leave-record.html" target="_blank">假条系统</a>使用新密钥验证</li>
+    </ol>
+  </div>
+
+</div>
+
+<script>
+  // ── 管理员登录 ──
+  const ADMIN_PWD = 'ddy123456';
+  const REPO = 'a1728720389-design/a1728720389-design.github.io';
+  const FILE_PATH = 'leave-record.html';
+
+  function doAdminLogin() {
+    const pwd = document.getElementById('adminPwd').value;
+    const err = document.getElementById('adminErr');
+    if (pwd === ADMIN_PWD) {
+      document.getElementById('lock').classList.add('hide');
+      document.getElementById('app').classList.add('show');
+      doFetchCurrentKey();
+    } else {
+      err.classList.add('show');
+      document.getElementById('adminPwd').value = '';
+      document.getElementById('adminPwd').focus();
+      setTimeout(() => err.classList.remove('show'), 3000);
+    }
+  }
+
+  // ── 状态提示 ──
+  function setStatus(type, msg, showSpinner) {
+    const bar = document.getElementById('statusBar');
+    const text = document.getElementById('statusText');
+    const spinner = document.getElementById('statusSpinner');
+    bar.className = 'status-bar show ' + type;
+    text.textContent = msg;
+    spinner.style.display = showSpinner ? 'block' : 'none';
+  }
+  function clearStatus() {
+    document.getElementById('statusBar').className = 'status-bar';
+  }
+
+  // ── 读取当前密钥 ──
+  async function doFetchCurrentKey() {
+    const token = document.getElementById('ghToken').value.trim();
+    const display = document.getElementById('currentKeyDisplay');
+    display.textContent = '读取中...';
+
+    const headers = { 'Accept': 'application/vnd.github+json' };
+    if (token) headers['Authorization'] = 'token ' + token;
+
+    try {
+      const res = await fetch(
+        `https://api.github.com/repos/${REPO}/contents/${FILE_PATH}`,
+        { headers }
+      );
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      const html = atob(data.content.replace(/\n/g, ''));
+      const match = html.match(/const PWD = '([^']*)'/);
+      if (match) {
+        display.textContent = match[1];
+      } else {
+        display.textContent = '解析失败';
+      }
+      // 记录最后更新时间（commit时间）
+      document.getElementById('lastUpdate').textContent =
+        data.sha ? '已读取（SHA: ' + data.sha.slice(0,7) + '）' : '-';
+    } catch (e) {
+      display.textContent = '读取失败（需要填写 Token）';
+    }
+  }
+
+  // ── 修改密钥 ──
+  async function doUpdateKey() {
+    const token = document.getElementById('ghToken').value.trim();
+    const newKey = document.getElementById('newKey').value.trim();
+
+    if (!token) {
+      setStatus('error', '请先填写 GitHub Token', false);
+      document.getElementById('ghToken').focus();
+      return;
+    }
+    if (!newKey) {
+      setStatus('error', '新密钥不能为空', false);
+      document.getElementById('newKey').focus();
+      return;
+    }
+
+    const btn = document.getElementById('updateBtn');
+    btn.disabled = true;
+    setStatus('loading', '正在读取文件...', true);
+
+    const headers = {
+      'Authorization': 'token ' + token,
+      'Accept': 'application/vnd.github+json',
+      'Content-Type': 'application/json'
+    };
+
+    try {
+      // 1. 获取文件内容和 blob sha
+      setStatus('loading', '正在读取当前文件...', true);
+      const res = await fetch(
+        `https://api.github.com/repos/${REPO}/contents/${FILE_PATH}`,
+        { headers }
+      );
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || 'HTTP ' + res.status);
+      }
+      const data = await res.json();
+      const blobSha = data.sha;
+      const oldHtml = atob(data.content.replace(/\n/g, ''));
+
+      // 2. 替换密钥
+      const oldMatch = oldHtml.match(/const PWD = '([^']*)'/);
+      if (!oldMatch) throw new Error('未找到密钥字段，文件格式可能已变更');
+
+      const newHtml = oldHtml.replace(
+        /const PWD = '[^']*'/,
+        `const PWD = '${newKey}'`
+      );
+
+      // 3. base64 编码（处理中文）
+      const newContent = btoa(unescape(encodeURIComponent(newHtml)));
+
+      // 4. 推送
+      setStatus('loading', '正在推送到 GitHub...', true);
+      const pushRes = await fetch(
+        `https://api.github.com/repos/${REPO}/contents/${FILE_PATH}`,
+        {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({
+            message: `admin: 更新访问密钥`,
+            content: newContent,
+            sha: blobSha
+          })
+        }
+      );
+      if (!pushRes.ok) {
+        const err = await pushRes.json();
+        throw new Error(err.message || 'HTTP ' + pushRes.status);
+      }
+      const pushData = await pushRes.json();
+
+      // 5. 成功
+      const shortSha = pushData.commit.sha.slice(0, 7);
+      setStatus('success', `✅ 修改成功！新密钥已同步（commit: ${shortSha}），约 20 秒后生效`, false);
+      document.getElementById('currentKeyDisplay').textContent = newKey;
+      document.getElementById('lastUpdate').textContent = `已更新（SHA: ${shortSha}）`;
+      document.getElementById('newKey').value = '';
+
+    } catch (e) {
+      setStatus('error', '❌ 操作失败：' + e.message, false);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+</script>
+</body>
+</html>
