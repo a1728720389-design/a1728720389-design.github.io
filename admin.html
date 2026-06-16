@@ -416,7 +416,9 @@
       );
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
-      const html = atob(data.content.replace(/\n/g, ''));
+      // 正确解码 UTF-8 中文
+      const rawBytes = Uint8Array.from(atob(data.content.replace(/\n/g, '')), c => c.charCodeAt(0));
+      const html = new TextDecoder('utf-8').decode(rawBytes);
       const match = html.match(/const PWD = '([^']*)'/);
       if (match) {
         display.textContent = match[1];
@@ -470,7 +472,9 @@
       }
       const data = await res.json();
       const blobSha = data.sha;
-      const oldHtml = atob(data.content.replace(/\n/g, ''));
+      // 正确解码 UTF-8 中文
+      const rawBytes = Uint8Array.from(atob(data.content.replace(/\n/g, '')), c => c.charCodeAt(0));
+      const oldHtml = new TextDecoder('utf-8').decode(rawBytes);
 
       // 2. 替换密钥
       const oldMatch = oldHtml.match(/const PWD = '([^']*)'/);
@@ -481,8 +485,12 @@
         `const PWD = '${newKey}'`
       );
 
-      // 3. base64 编码（处理中文）
-      const newContent = btoa(unescape(encodeURIComponent(newHtml)));
+      // 3. base64 编码（正确处理中文/UTF-8）
+      const encoder = new TextEncoder();
+      const bytes = encoder.encode(newHtml);
+      let binary = '';
+      bytes.forEach(b => binary += String.fromCharCode(b));
+      const newContent = btoa(binary);
 
       // 4. 推送
       setStatus('loading', '正在推送到 GitHub...', true);
