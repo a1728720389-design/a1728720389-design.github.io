@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>æ¥å¸¸è¯·ååè¡¨</title>
+  <title>日常请假列表</title>
   <style>
     *, *::before, *::after {
       margin: 0; padding: 0;
@@ -18,7 +18,7 @@
       min-height: 100vh;
     }
 
-    /* ââ å£ä»¤ç»å½å± ââ */
+    /* ── 口令登录层 ── */
     .lock {
       position: fixed; inset: 0;
       background: linear-gradient(135deg, #C371FF 0%, #3AC8C8 100%);
@@ -73,11 +73,11 @@
       font-size: 12px; color: #bbb; margin-top: 14px;
     }
 
-    /* ââ ä¸»é¡µé¢ ââ */
+    /* ── 主页面 ── */
     .app { padding-bottom: 54px; }
     .app.hide { display: none; }
 
-    /* å¡ç */
+    /* 卡片 */
     .card {
       background: #fff;
       margin-bottom: 10px;
@@ -86,7 +86,7 @@
     }
     .card-wrap { padding: 4px 15px; }
 
-    /* æ®éè¡ */
+    /* 普通行 */
     .row {
       display: flex;
       align-items: flex-start;
@@ -107,7 +107,7 @@
       align-items: center;
     }
 
-    /* æ ç­¾ #313131 */
+    /* 标签 #313131 */
     .lbl {
       width: 42px; min-width: 42px;
       font-size: 16.5px;
@@ -117,7 +117,7 @@
       font-weight: 400;
     }
 
-    /* å¼ #777777 */
+    /* 值 #777777 */
     .val {
       flex: 1;
       font-size: 16.5px;
@@ -126,14 +126,14 @@
       padding-left: 10px;
     }
 
-    /* æ¥çè¯¦æ */
+    /* 查看详情 */
     .link-detail {
       font-size: 15px;
       color: #3CCCCC;
       white-space: nowrap;
     }
 
-    /* ââ è§æ  ââ å¯¹è§ä¸è§ï¼ç¨æ·è°è¯ååæ­»å¼ï¼ ââ */
+    /* ── 角标 —— 对角三角（用户调试后写死值） ── */
     .stamp {
       position: absolute;
       bottom: 0; right: 0;
@@ -157,12 +157,12 @@
       transform: rotate(-45deg);
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
-    /* é»è² ââ å¾ä¼å */
+    /* 黄色 —— 待休假 */
     .stamp-pending .stamp-band { background: #FFC93C; }
-    /* ç´«è² ââ å·²éå */
+    /* 紫色 —— 已销假 */
     .stamp-done   .stamp-band { background: #C371FF; }
 
-    /* ââ å¯ç¼è¾æ ·å¼ ââ */
+    /* ── 可编辑样式 ── */
     [contenteditable="true"] {
       outline: none;
       cursor: text;
@@ -178,7 +178,7 @@
       box-shadow: 0 1px 0 0 rgba(255,255,255,0.7);
     }
 
-    /* ââ åºé¨æé® ââ */
+    /* ── 底部按钮 ── */
     .foot {
       position: fixed; bottom: 0; left: 0; right: 0;
       height: 54px;
@@ -193,112 +193,112 @@
 </head>
 <body>
 
-<!-- âââ å£ä»¤ç»å½ âââ -->
+<!-- ═══ 口令登录 ═══ -->
 <div class="lock" id="lock">
   <div class="lock-box">
-    <div class="lock-emoji">ð</div>
-    <div class="lock-title">è¯·è¾å¥è®¿é®å£ä»¤</div>
-    <div class="lock-sub">éªè¯éè¿åå¯è¿å¥æ¥å¸¸è¯·ååè¡¨</div>
+    <div class="lock-emoji">🔒</div>
+    <div class="lock-title">请输入访问口令</div>
+    <div class="lock-sub">验证通过后可进入日常请假列表</div>
     <input type="password" class="lock-input" id="pwd"
-           placeholder="è¯·è¾å¥å£ä»¤" autocomplete="off">
-    <div class="lock-err" id="err">å£ä»¤éè¯¯ï¼è¯·éæ°è¾å¥</div>
-    <button class="lock-btn" id="goBtn">è¿å¥ç³»ç»</button>
-    <div class="lock-tip">ð é¡µé¢åå£ä»¤ä¿æ¤</div>
+           placeholder="请输入口令" autocomplete="off">
+    <div class="lock-err" id="err">口令错误，请重新输入</div>
+    <button class="lock-btn" id="goBtn">进入系统</button>
+    <div class="lock-tip">🔐 页面受口令保护</div>
   </div>
 </div>
 
-<!-- âââ ä¸»é¡µé¢ï¼é»è®¤éèï¼ âââ -->
+<!-- ═══ 主页面（默认隐藏） ═══ -->
 <div class="app hide" id="app">
 
-  <!-- ââ è¯·åè®°å½ 1ï¼å¾ä¼å - é»è²ï¼ ââ -->
+  <!-- ══ 请假记录 1（待休假 - 黄色） ══ -->
   <div class="card">
     <div class="card-wrap">
       <div class="row-top">
         <div class="row-top-left">
-          <span class="lbl" contenteditable="true">å­¦å·</span>
+          <span class="lbl" contenteditable="true">学号</span>
           <span class="val" contenteditable="true">202</span>
         </div>
-        <span class="link-detail" contenteditable="true">æ¥çè¯¦æ &gt;</span>
+        <span class="link-detail" contenteditable="true">查看详情 &gt;</span>
       </div>
       <div class="row">
-        <span class="lbl" contenteditable="true">å§å</span>
+        <span class="lbl" contenteditable="true">姓名</span>
         <span class="val" contenteditable="true"></span>
       </div>
       <div class="row">
-        <span class="lbl" contenteditable="true">è¯·åæ¶é´</span>
-        <span class="val" contenteditable="true">2025-10-25 10:41è³2025-10-25 14:59</span>
+        <span class="lbl" contenteditable="true">请假时间</span>
+        <span class="val" contenteditable="true">2025-10-25 10:41至2025-10-25 14:59</span>
       </div>
       <div class="row">
-        <span class="lbl" contenteditable="true">è¯·åæ¶é¿</span>
-        <span class="val" contenteditable="true">0å¤©4å°æ¶</span>
+        <span class="lbl" contenteditable="true">请假时长</span>
+        <span class="val" contenteditable="true">0天4小时</span>
       </div>
       <div class="row">
-        <span class="lbl" contenteditable="true">æ¯å¦ç»­å</span>
-        <span class="val" contenteditable="true">å¦</span>
+        <span class="lbl" contenteditable="true">是否续假</span>
+        <span class="val" contenteditable="true">否</span>
       </div>
       <div class="row">
-        <span class="lbl" contenteditable="true">è¯·ååå </span>
-        <span class="val" contenteditable="true">æ ¡å¤:</span>
+        <span class="lbl" contenteditable="true">请假原因</span>
+        <span class="val" contenteditable="true">校外:</span>
       </div>
       <div class="row">
-        <span class="lbl" contenteditable="true">éåç¶æ</span>
-        <span class="val" contenteditable="true">å¾ä¼å</span>
+        <span class="lbl" contenteditable="true">销假状态</span>
+        <span class="val" contenteditable="true">待休假</span>
       </div>
     </div>
     <div class="stamp stamp-pending">
-      <div class="stamp-band" contenteditable="true" style="pointer-events:auto;">å¾ä¼å</div>
+      <div class="stamp-band" contenteditable="true" style="pointer-events:auto;">待休假</div>
     </div>
   </div>
 
-  <!-- ââ è¯·åè®°å½ 2ï¼å·²éå - ç´«è²ï¼ ââ -->
+  <!-- ══ 请假记录 2（已销假 - 紫色） ══ -->
   <div class="card">
     <div class="card-wrap">
       <div class="row-top">
         <div class="row-top-left">
-          <span class="lbl" contenteditable="true">å­¦å·</span>
+          <span class="lbl" contenteditable="true">学号</span>
           <span class="val" contenteditable="true">202</span>
         </div>
-        <span class="link-detail" contenteditable="true">æ¥çè¯¦æ &gt;</span>
+        <span class="link-detail" contenteditable="true">查看详情 &gt;</span>
       </div>
       <div class="row">
-        <span class="lbl" contenteditable="true">å§å</span>
+        <span class="lbl" contenteditable="true">姓名</span>
         <span class="val" contenteditable="true"></span>
       </div>
       <div class="row">
-        <span class="lbl" contenteditable="true">è¯·åæ¶é´</span>
-        <span class="val" contenteditable="true">2025-10-01 09:00è³2025-10-04 16:00</span>
+        <span class="lbl" contenteditable="true">请假时间</span>
+        <span class="val" contenteditable="true">2025-10-01 09:00至2025-10-04 16:00</span>
       </div>
       <div class="row">
-        <span class="lbl" contenteditable="true">è¯·åæ¶é¿</span>
-        <span class="val" contenteditable="true">4å¤©0å°æ¶</span>
+        <span class="lbl" contenteditable="true">请假时长</span>
+        <span class="val" contenteditable="true">4天0小时</span>
       </div>
       <div class="row">
-        <span class="lbl" contenteditable="true">æ¯å¦ç»­å</span>
-        <span class="val" contenteditable="true">å¦</span>
+        <span class="lbl" contenteditable="true">是否续假</span>
+        <span class="val" contenteditable="true">否</span>
       </div>
       <div class="row">
-        <span class="lbl" contenteditable="true">è¯·ååå </span>
-        <span class="val" contenteditable="true">æ ¡å¤:å½åºåæ</span>
+        <span class="lbl" contenteditable="true">请假原因</span>
+        <span class="val" contenteditable="true">校外:国庆假期</span>
       </div>
       <div class="row">
-        <span class="lbl" contenteditable="true">éåç¶æ</span>
-        <span class="val" contenteditable="true">å·²éå</span>
+        <span class="lbl" contenteditable="true">销假状态</span>
+        <span class="val" contenteditable="true">已销假</span>
       </div>
     </div>
     <div class="stamp stamp-done">
-      <div class="stamp-band" contenteditable="true" style="pointer-events:auto;">å·²éå</div>
+      <div class="stamp-band" contenteditable="true" style="pointer-events:auto;">已销假</div>
     </div>
   </div>
 
-  <!-- åºé¨æé® -->
+  <!-- 底部按钮 -->
   <div class="foot">
-    <span class="btn-text" contenteditable="true">æäº¤è¯·å</span>
+    <span class="btn-text" contenteditable="true">提交请假</span>
   </div>
 
 </div>
 
 <script>
-  const PWD = '1';
+  const PWD = '原神牛逼';
   const lock = document.getElementById('lock');
   const app  = document.getElementById('app');
   const pwd  = document.getElementById('pwd');
