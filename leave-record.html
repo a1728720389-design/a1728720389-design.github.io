@@ -131,7 +131,11 @@
       font-size: 15px;
       color: #3CCCCC;
       white-space: nowrap;
+      text-decoration: none;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
     }
+    .link-detail:active { opacity: 0.7; }
 
     /* ── 角标 —— 对角三角（用户调试后写死值） ── */
     .stamp {
@@ -218,7 +222,7 @@
           <span class="lbl" contenteditable="true">学号</span>
           <span class="val" contenteditable="true">202</span>
         </div>
-        <span class="link-detail" contenteditable="true">查看详情 &gt;</span>
+        <a class="link-detail" href="leave-detail.html">查看详情 &gt;</a>
       </div>
       <div class="row">
         <span class="lbl" contenteditable="true">姓名</span>
@@ -258,7 +262,7 @@
           <span class="lbl" contenteditable="true">学号</span>
           <span class="val" contenteditable="true">202</span>
         </div>
-        <span class="link-detail" contenteditable="true">查看详情 &gt;</span>
+        <a class="link-detail" href="leave-detail.html">查看详情 &gt;</a>
       </div>
       <div class="row">
         <span class="lbl" contenteditable="true">姓名</span>
