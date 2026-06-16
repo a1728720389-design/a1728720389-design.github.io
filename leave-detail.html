@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>请假详情</title>
+  <style>
+    *, *::before, *::after {
+      margin: 0; padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: #f2f2f2;
+      font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC',
+                   'Helvetica Neue', 'Microsoft YaHei', sans-serif;
+      min-height: 100vh;
+      padding-bottom: 30px;
+    }
+
+    /* 顶部返回栏 */
+    .topbar {
+      background: #fff;
+      padding: 12px 15px;
+      display: flex;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .topbar-back {
+      font-size: 16.5px;
+      color: #3CCCCC;
+      text-decoration: none;
+      padding: 4px 6px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .topbar-back:active { opacity: 0.7; }
+    .topbar-title {
+      flex: 1;
+      text-align: center;
+      font-size: 17px;
+      color: #313131;
+      font-weight: 500;
+      margin-right: 36px; /* 视觉居中补偿 */
+    }
+
+    /* 分组 */
+    .group {
+      background: #fff;
+      margin: 10px 0;
+      padding: 4px 15px;
+    }
+    .group-title {
+      font-size: 16.5px;
+      color: #313131;
+      padding: 12px 0;
+      border-bottom: 1px solid #f5f5f5;
+      font-weight: 500;
+    }
+
+    /* 行 */
+    .row {
+      display: flex;
+      align-items: flex-start;
+      padding: 12px 0;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .row:last-child { border-bottom: none; }
+
+    /* 标签 #313131 */
+    .lbl {
+      width: 90px; min-width: 90px;
+      font-size: 16.5px;
+      color: #313131;
+      line-height: 1.5;
+      word-break: break-all;
+    }
+
+    /* 值 #777777 */
+    .val {
+      flex: 1;
+      font-size: 16.5px;
+      color: #777777;
+      line-height: 1.5;
+      padding-left: 10px;
+    }
+
+    /* 单选 */
+    .radio-group {
+      display: flex;
+      gap: 18px;
+      flex: 1;
+      padding-left: 10px;
+    }
+    .radio {
+      display: flex;
+      align-items: center;
+      font-size: 16.5px;
+      color: #777777;
+    }
+    .radio-dot {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      border: 1.5px solid #ccc;
+      margin-right: 6px;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .radio-on .radio-dot {
+      border-color: #C371FF;
+    }
+    .radio-on .radio-dot::after {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      background: #C371FF;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 顶部返回 -->
+  <div class="topbar">
+    <a class="topbar-back" href="leave-record.html">&lt; 返回</a>
+    <div class="topbar-title">请假详情</div>
+  </div>
+
+  <!-- 请假信息 -->
+  <div class="group">
+    <div class="group-title">请假信息</div>
+
+    <div class="row">
+      <span class="lbl">*学期</span>
+      <span class="val">2025-2026学年第二学期</span>
+    </div>
+
+    <div class="row">
+      <span class="lbl">*请假时间</span>
+      <span class="val">2025-10-25 10:41 至 2025-10-25 14:59</span>
+    </div>
+
+    <div class="row">
+      <span class="lbl">共计</span>
+      <span class="val">0天4小时</span>
+    </div>
+
+    <div class="row">
+      <span class="lbl">*请假类型</span>
+      <span class="val">校外</span>
+    </div>
+
+    <div class="row">
+      <span class="lbl">*请假原因</span>
+      <span class="val">校外：病假</span>
+    </div>
+
+    <div class="row">
+      <span class="lbl">详细说明</span>
+      <span class="val">看病</span>
+    </div>
+
+    <div class="row">
+      <span class="lbl">本人移动电话</span>
+      <span class="val">13597541235</span>
+    </div>
+
+    <div class="row">
+      <span class="lbl">是否已告知监护人</span>
+      <div class="radio-group">
+        <div class="radio radio-on"><div class="radio-dot"></div>是</div>
+        <div class="radio"><div class="radio-dot"></div>否</div>
+      </div>
+    </div>
+
+    <div class="row">
+      <span class="lbl">监护人姓名</span>
+      <span class="val">李国封</span>
+    </div>
+
+    <div class="row">
+      <span class="lbl">监护人电话</span>
+      <span class="val">15953489416</span>
+    </div>
+  </div>
+
+  <!-- 外出信息 -->
+  <div class="group">
+    <div class="group-title">外出信息</div>
+
+    <div class="row">
+      <span class="lbl">是否离校</span>
+      <div class="radio-group">
+        <div class="radio radio-on"><div class="radio-dot"></div>是</div>
+        <div class="radio"><div class="radio-dot"></div>否</div>
+      </div>
+    </div>
+
+    <div class="row">
+      <span class="lbl">是否离开廊坊</span>
+      <div class="radio-group">
+        <div class="radio"><div class="radio-dot"></div>是</div>
+        <div class="radio radio-on"><div class="radio-dot"></div>否</div>
+      </div>
+    </div>
+
+    <div class="row">
+      <span class="lbl">*外出地点</span>
+      <span class="val">河北省廊坊市市辖区</span>
+    </div>
+
+    <div class="row">
+      <span class="lbl">外出详细地点</span>
+      <span class="val">廊坊市人民医院</span>
+    </div>
+
+    <div class="row">
+      <span class="lbl">*外出时间</span>
+      <span class="val">2025-10-25 11:11 至 2025-10-25 14:29</span>
+    </div>
+
+    <div class="row">
+      <span class="lbl">*外出方式（去）</span>
+      <span class="val">公交</span>
+    </div>
+
+    <div class="row">
+      <span class="lbl">*外出方式（回）</span>
+      <span class="val">公交</span>
+    </div>
+
+    <div class="row">
+      <span class="lbl">是否结伴同行</span>
+      <div class="radio-group">
+        <div class="radio"><div class="radio-dot"></div>是</div>
+        <div class="radio radio-on"><div class="radio-dot"></div>否</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 请假材料 -->
+  <div class="group">
+    <div class="group-title">请假材料</div>
+    <div class="row">
+      <span class="lbl">上传材料</span>
+      <span class="val"></span>
+    </div>
+  </div>
+
+  <!-- 请假承诺 -->
+  <div class="group">
+    <div class="group-title">请假承诺</div>
+    <div class="row">
+      <span class="lbl" style="width:100%;min-width:100%;line-height:1.7;color:#777777;">
+        本人承诺以上填写信息真实有效，自愿承担因请假所产生的一切后果。
+      </span>
+    </div>
+  </div>
+
+</body>
+</html>
